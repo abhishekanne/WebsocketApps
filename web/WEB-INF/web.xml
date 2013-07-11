@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<web-app xmlns="http://java.sun.com/xml/ns/javaee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
+         version="3.0">
+    <session-config>
+        <session-timeout>
+            30
+        </session-timeout>
+    </session-config>
+    
+    <servlet>
+        <servlet-name>wsEchoMessage</servlet-name>
+        <servlet-class>websocket.EchoMessage</servlet-class>
+        <!-- Uncomment the following block to increase the default maximum
+        WebSocket buffer size from 2MB to 20MB which is required for the
+        Autobahn test suite to pass fully. -->
+        <!--
+        <init-param>
+          <param-name>byteBufferMaxSize</param-name>
+          <param-value>20971520</param-value>
+        </init-param>
+        <init-param>
+          <param-name>charBufferMaxSize</param-name>
+          <param-value>20971520</param-value>
+        </init-param>
+        -->
+    </servlet>
+    <servlet>
+        <servlet-name>wsEchoStream</servlet-name>
+        <servlet-class>websocket.EchoStream</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>wsEchoStream</servlet-name>
+        <url-pattern>/websocket/echoStream</url-pattern>
+    </servlet-mapping>
+    <servlet>
+        <servlet-name>wsSimpleEcho</servlet-name>
+        <servlet-class>websocket.SimpleEchoServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>wsSimpleEcho</servlet-name>
+        <url-pattern>/websocket/simpleEchoMessage</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>wsEchoMessage</servlet-name>
+        <url-pattern>/websocket/echoMessage</url-pattern>
+    </servlet-mapping>
+    <servlet>
+        <servlet-name>wsChat</servlet-name>
+        <servlet-class>websocket.ChatWebSocketServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>wsChat</servlet-name>
+        <url-pattern>/websocket/chat</url-pattern>
+    </servlet-mapping>
+    <servlet>
+        <servlet-name>wsChat2</servlet-name>
+        <servlet-class>websocket.Chat2WebSocketServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>wsChat2</servlet-name>
+        <url-pattern>/websocket/chat2</url-pattern>
+    </servlet-mapping>
+    <servlet>
+        <servlet-name>wsSnake</servlet-name>
+        <servlet-class>websocket.snake.SnakeWebSocketServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>wsSnake</servlet-name>
+        <url-pattern>/websocket/snake</url-pattern>
+    </servlet-mapping>
+</web-app>

@@ -1,0 +1,195 @@
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one or more
+  contributor license agreements.  See the NOTICE file distributed with
+  this work for additional information regarding copyright ownership.
+  The ASF licenses this file to You under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with
+  the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Apache Tomcat WebSocket Examples: Chat</title>
+        <style type="text/css">
+            input#chat {
+                width: 410px
+            }
+
+            #console-container {
+                width: 400px;
+            }
+
+            #console {
+                border: 1px solid #CCCCCC;
+                border-right-color: #999999;
+                border-bottom-color: #999999;
+                height: 170px;
+                overflow-y: scroll;
+                padding: 5px;
+                width: 100%;
+            }
+
+            #console p {
+                padding: 0;
+                margin: 0;
+            }
+        </style>
+        <script>
+            var ws = null;
+            var username = null;
+            var intervalId, oldTitle,isFocused=true; // Browser tab notification. 
+            function setConnected(connected) {
+                document.getElementById('connect').disabled = connected;
+                document.getElementById('disconnect').disabled = !connected;
+                document.getElementById('send').disabled = !connected;
+            }
+            function connect() {
+                username = document.getElementById('name').value;
+                var target = 'ws://' + window.location.host + '/WebSocketApp/websocket/chat2';
+                if (username == '') {
+                    alert('Please enter nickname!');
+                    return;
+                }
+                else {
+                    target = target + '?name=' + username;
+                }
+                if ('WebSocket' in window) {
+                    ws = new WebSocket(target);
+                } else if ('MozWebSocket' in window) {
+                    ws = new MozWebSocket(target);
+                } else {
+                    alert('WebSocket is not supported by this browser.');
+                    return;
+                }
+                ws.onopen = function() {
+                    setConnected(true);
+                    log('Info: Connected to chatserver.');
+                    document.getElementById('message').onkeydown = function(event) {
+                        if (event.keyCode == 13) {
+                            sendMessage();
+                        }
+                    };
+                };
+
+                ws.onclose = function() {
+                    setConnected(false);
+                    document.getElementById('message').onkeydown = null;
+                    log('Info: Disconnected....');
+                };
+
+                ws.onmessage = function(event) {
+                    if(!isFocused){
+                    alerter('NEW MSG', 1000);}
+                    log(event.data);
+                };
+
+            }
+            function sendMessage() {
+                var message = document.getElementById('message').value;
+                if (ws != null) {
+                    if (message != '') {
+                        ws.send(message);
+                        document.getElementById('message').value = '';
+                    }
+                }
+                else {
+                    alert('WebSocket connection not established, please connect.');
+                }
+            }
+            function disconnect() {
+                if (ws != null) {
+                    ws.close();
+                    ws = null;
+                }
+                setConnected(false);
+            }
+            var msgFormated = false;
+            function log(message) {
+                var console = document.getElementById('console');
+                var p = document.createElement('p');
+                p.style.wordWrap = 'break-word';
+//                message=messageFormater(message);
+//                if(!msgFormated){
+                p.appendChild(document.createTextNode(message));
+//                }
+//                else{
+//                    message=p.innerHTML+=message;
+//                    p.innerHTML(txtNode);
+//                    msgFormated= false;
+//                }
+                console.appendChild(p);
+                while (console.childNodes.length > 25) {
+                    console.removeChild(console.firstChild);
+                }
+                console.scrollTop = console.scrollHeight;
+            }
+            function messageFormater(message)
+            {
+                if (message.indexOf('Info') == 0 || (message.indexOf('*') == 0 && message.search(':') > -1)) {
+                    msgFormated = true;
+                    message = '<span style="color:red">' + message + '</span>';
+                }
+                return message;
+            }
+          
+            function alerter(msg, ti) {
+                // msg = the message, ti= time interval between title changes(default is 1.5s)
+                oldTitle = document.title;
+                //id=setInterval(<functionName>, milliseconds) this methods calls function after specifid timr
+                // clearInterval(id) pass same id to stop 
+                intervalId = setInterval(function() {
+                    document.title = document.title === msg ? oldTitle : msg;
+                }, ti ? ti : 1500);
+            }
+            window.onfocus = function() { // or whatever the event handler is...
+                isFocused=true;
+                if (intervalId) {
+                    clearInterval(intervalId);
+                    document.title = oldTitle;
+                }
+                intervalId = false;
+            };
+            window.onblur = function(){
+                isFocused=false;
+            };
+
+            
+        </script>
+    </head>
+    <body>
+        <noscript><h2 style="color: #ff0000">Seems your browser doesn't support Javascript! Websockets rely on Javascript being enabled. Please enable
+            Javascript and reload this page!</h2></noscript>
+        <div>
+            <div>Your chat name
+                <input id="name" type="text" size="40" style="width: 350px"/>
+            </div>
+            <div>
+                <button id="connect" onclick="connect();">Connect</button>
+                <button id="disconnect" disabled="disabled" onclick="disconnect();">Disconnect</button>
+            </div>
+            <div id="console-container">
+                <div id="console"></div>
+            </div>
+            <p>
+                <input type="text" placeholder="type and press enter to chat" id="message">
+            </p>
+
+            <button id="send" onclick="sendMessage();" disabled="disabled">Send message</button>
+
+
+        </div>
+
+        <script type="text/javascript">
+
+        </script>
+
+    </body>
+</html>
